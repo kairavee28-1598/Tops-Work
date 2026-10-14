@@ -373,3 +373,320 @@ create database analytics_db ;
 -- WHERE c.avg_rating > 4.0;
 
 
+-- Session 13
+-- CREATE TABLE Orders (
+-- order_id INT PRIMARY KEY,
+-- user_id INT,
+-- order_amount DECIMAL(10, 2),
+-- app_name VARCHAR(50)
+-- );
+
+-- INSERT INTO Orders (order_id, user_id, order_amount, app_name)
+-- VALUES
+-- (1, 101, 500.00, 'Zomato'),
+-- (2, 102, 800.00, 'Swiggy'),
+-- (3, 101, 300.00, 'Flipkart'),
+-- (4, 103, 1200.00, 'Zomato'),
+-- (5, 104, 650.00, 'Swiggy'),
+-- (6, 102, 400.00, 'Flipkart'),
+-- (7, 105, 1500.00, 'Zomato'),
+-- (8, 103, 700.00, 'Swiggy'),
+-- (9, 101, 900.00, 'Flipkart'),
+-- (10, 104, 350.00, 'Zomato');
+
+-- SELECT
+-- order_id,
+-- user_id,
+-- order_amount,
+-- app_name,
+-- SUM(order_amount) OVER() AS total_order_amount
+-- FROM Orders;
+
+
+-- SELECT
+-- order_id,
+-- user_id,
+-- order_amount,
+-- AVG(order_amount) OVER(
+	-- PARTITION BY user_id
+    00 ) AS user_avg_order_amount
+-- FROM Orders;
+
+
+-- CREATE TABLE Playlist (
+-- song_id INT PRIMARY KEY,
+-- user_id INT,
+-- duration_sec INT
+-- );
+
+-- INSERT INTO Playlist (song_id, user_id, duration_sec)
+-- VALUES
+-- (1, 101, 180),
+-- (2, 101, 240),
+-- (3, 102, 200),
+-- (4, 102, 150),
+-- (5, 101, 210),
+-- (6, 103, 300),
+-- (7, 103, 180);
+
+-- SELECT
+-- song_id,
+-- user_id,
+-- duration_sec,
+-- SUM(duration_sec) OVER(
+	-- PARTITION BY user_id
+    -- ) AS total_duration_sec
+-- FROM Playlist;
+
+
+-- SELECT
+-- rating_id,
+-- user_id,
+-- movie_name,
+-- rating,
+-- AVG(rating) OVER(
+-- PARTITION BY movie_name
+-- ) AS movie_avg_rating,
+-- rating - AVG(rating) OVER(
+-- PARTITION BY movie_name
+-- ) AS rating_difference
+-- FROM MovieRatings;
+
+
+-- Session 14
+-- SELECT
+-- order_id,
+-- user_id,
+-- order_date,
+-- total_amount,
+-- ROW_NUMBER() OVER (
+	-- PARTITION BY user_id
+	-- ORDER BY order_date DESC
+-- ) AS row_num
+-- FROM Orders;
+
+-- SELECT
+-- song_id,
+-- artist,
+-- streams,
+-- RANK() OVER (
+	-- PARTITION BY artist
+	-- ORDER BY streams DESC
+    -- ) AS song_rank
+-- FROM Songs;
+
+
+-- SELECT movie_id, genre, rating,
+-- DENSE_RANK() OVER (
+	-- PARTITION BY genre
+	-- ORDER BY rating DESC
+    -- ) AS movie_rank
+-- FROM Movies;
+
+
+-- WITH RankedInfluencers AS (
+-- SELECT id, platform, followers,
+	-- ROW_NUMBER() OVER (
+		-- PARTITION BY platform
+		-- ORDER BY followers DESC
+	-- ) AS row_num
+-- FROM Influencers
+-- )
+-- SELECT id, platform, followers, row_num
+-- FROM RankedInfluencers
+-- WHERE row_num <= 3
+-- ORDER BY platform, row_num;
+
+
+-- Session 15
+-- SELECT NOW() AS CurrentDateTime;
+
+-- SELECT order_date,
+-- YEAR(order_date) AS order_year,
+-- MONTH(order_date) AS order_month,
+-- DAY(order_date) AS order_day
+-- FROM Orders;
+
+-- SELECT delivery_date,
+-- DATE_SUB(delivery_date, INTERVAL 2 DAY)
+	-- AS expected_pickup_date
+-- FROM Deliveries;
+
+-- SELECT user_id, start_date, end_date,
+-- DATEDIFF(end_date, start_date) AS subscription_days
+-- FROM Subscriptions;
+
+-- SELECT user_id, last_login_date
+-- FROM AppLogins
+-- WHERE DATEDIFF(NOW(), last_login_date) > 30;
+
+
+-- Session 16
+-- SELECT
+-- CONCAT(first_name, ' ', last_name) AS full_name
+-- FROM users;
+
+-- SELECT
+-- UPPER(song_title) AS uppercase_title
+-- FROM playlists;
+
+-- SELECT
+-- TRIM(item_code) AS cleaned_item_code
+-- FROM food_items;
+
+-- SELECT imdb_id,
+-- RIGHT(imdb_id, 7) AS movie_number
+-- FROM movies;
+
+-- SELECT sku_code,
+-- REPLACE(sku_code, '-', '_') AS updated_sku_code
+-- FROM products;
+
+
+-- Session 17
+-- SELECT *,
+-- CASE
+	-- WHEN total_amount < 300 THEN 'Small'
+	-- WHEN total_amount BETWEEN 300 AND 999 THEN 'Medium'
+	-- ELSE 'Large'
+-- END AS order_category
+-- FROM FoodOrders;
+
+-- SELECT *,
+-- CASE
+	-- WHEN rating >= 8 THEN 'Blockbuster'
+	-- WHEN rating >= 5 THEN 'Hit'
+	-- ELSE 'Average'
+-- END AS popularity
+-- FROM Movies;
+
+-- SELECT *,
+-- CASE
+	-- WHEN price < 500 THEN 'Budget'
+	-- WHEN price BETWEEN 500 AND 2000 THEN 'Standard'
+	-- ELSE 'Premium'
+-- END AS price_category
+-- FROM FlipkartProducts;
+
+-- SELECT *,
+-- CASE
+	-- WHEN duration_sec < 180 THEN 'Short'
+	-- WHEN duration_sec BETWEEN 180 AND 300 THEN 'Medium'
+	-- ELSE 'Long'
+-- END AS duration_label
+-- FROM SpotifyTracks;
+
+
+-- Session 18
+-- CREATE VIEW TopRatedRestaurants AS
+-- SELECT r.restaurant_name, AVG(rv.rating) AS average_rating,
+-- COUNT(rv.review_id) AS total_reviews
+-- FROM Restaurants r
+-- INNER JOIN Reviews rv
+-- ON r.restaurant_id = rv.restaurant_id
+-- GROUP BY
+-- r.restaurant_id,
+-- r.restaurant_name
+
+-- CREATE OR REPLACE VIEW TopRatedRestaurants AS
+-- SELECT r.restaurant_name, r.city, AVG(rv.rating) AS average_rating,
+-- COUNT(rv.review_id) AS total_reviews
+-- FROM Restaurants r
+-- INNER JOIN Reviews rv
+-- ON r.restaurant_id = rv.restaurant_id
+-- GROUP BY
+-- r.restaurant_id,
+-- r.restaurant_name,
+-- r.city
+-- HAVING AVG(rv.rating) > 4.0;
+-- HAVING AVG(rv.rating) > 4.0;
+
+-- UPDATE TopRatedRestaurants
+-- SET average_rating = 5.0
+-- WHERE restaurant_name = 'Spice Garden';
+
+-- CREATE VIEW DailyOrderSummary AS
+-- SELECT DATE(order_date) AS order_day, COUNT(order_id) AS total_orders,
+-- SUM(total_amount) AS total_revenue
+-- FROM SwiggyOrders
+-- WHERE order_date >= CURDATE() - INTERVAL 29 DAY
+-- AND order_date < CURDATE() + INTERVAL 1 DAY
+-- GROUP BY DATE(order_date);
+
+
+-- Session 19
+-- SELECT * FROM orders
+-- WHERE user_id = 101;
+
+-- SET profiling = 1;
+-- SELECT * FROM orders
+-- WHERE user_id = 101;
+-- SHOW PROFILES;
+
+
+-- CREATE INDEX idx_user_id
+-- ON orders(user_id);
+
+-- SELECT * FROM orders
+-- WHERE user_id = 101;
+
+
+-- EXPLAIN
+-- SELECT * FROM orders
+-- WHERE user_id = 101;
+
+-- CREATE INDEX idx_category
+-- ON products(category);
+
+-- EXPLAIN
+-- SELECT *
+-- FROM products
+-- WHERE category = 'Electronics';
+
+
+-- Session 20
+CREATE DATABASE ipl_project;
+-- USE ipl_project;
+
+-- CREATE TABLE ipl_matches (
+--  id INT,
+--  season INT,
+--  match_date DATE,
+--  team1 VARCHAR(100),
+--  team2 VARCHAR(100),
+--  winner VARCHAR(100),
+--  venue VARCHAR(200)
+-- );
+
+-- SELECT COUNT(*) AS total_matches
+-- FROM ipl_matches;
+-- SELECT * FROM ipl_matches
+-- LIMIT 10;
+
+
+-- SELECT * FROM ipl_matches
+-- WHERE team1 = 'Mumbai Indians'
+-- OR team2 = 'Mumbai Indians';
+
+-- SELECT * FROM ipl_matches
+-- WHERE 'Mumbai Indians' IN (team1, team2);
+
+
+-- SELECT team, COUNT(*) AS matches_played
+-- FROM (
+--  SELECT team1 AS team FROM ipl_matches
+--  UNION ALL
+--  SELECT team2 AS team FROM ipl_matches
+-- ) AS all_teams
+-- GROUP BY team
+-- ORDER BY matches_played DESC;
+
+
+-- SELECT winner AS team, COUNT(*) AS total_wins
+-- FROM ipl_matches
+-- WHERE winner IS NOT NULL
+-- AND winner <> ''
+-- GROUP BY winner
+-- ORDER BY total_wins DESC;
+
+
