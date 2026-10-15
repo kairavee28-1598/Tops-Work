@@ -690,3 +690,55 @@ CREATE DATABASE ipl_project;
 -- ORDER BY total_wins DESC;
 
 
+-- Session 23
+-- SELECT name,
+-- AVG(CAST(rate AS DECIMAL(3,1))) AS average_rating,
+-- SUM(votes) AS total_votes
+-- FROM restaurants
+-- WHERE location LIKE '%Koramangala%'
+-- AND rate IS NOT NULL
+-- AND rate REGEXP '^[0-5](\\.[0-9])?$'
+-- GROUP BY name
+-- ORDER BY average_rating DESC, total_votes DESC
+-- LIMIT 5;
+
+-- SELECT cuisine,
+-- COUNT(DISTINCT restaurant_id) AS restaurant_count
+-- FROM restaurant_cuisines
+-- WHERE location = 'Indiranagar'
+-- GROUP BY cuisine
+-- ORDER BY restaurant_count DESC;
+
+-- SELECT
+    -- rest_type,
+    -- ROUND(
+        -- AVG(
+            -- CAST(
+                -- REPLACE(
+                    -- REPLACE(
+                        `-- approx_cost(for two people)`,
+                       --  ',', ''
+                   --  ),
+                    -- '₹', ''
+                -- ) AS DECIMAL(10,2)
+            -- )
+        -- ),
+       --  2
+    -- ) AS average_cost_for_two
+-- FROM restaurants
+-- WHERE rest_type IS NOT NULL
+-- AND `approx_cost(for two people)` IS NOT NULL
+-- AND TRIM(`approx_cost(for two people)`) REGEXP '^[₹]?[0-9,]+$'
+-- GROUP BY rest_type
+-- ORDER BY average_cost_for_two DESC;
+
+-- SELECT name, location,
+-- CAST(rate AS DECIMAL(3,1)) AS rating,
+-- votes, rest_type, cuisines
+-- FROM restaurants
+-- WHERE rate REGEXP '^[0-5](\\.[0-9])?$'
+-- AND CAST(rate AS DECIMAL(3,1)) < 3.0
+-- AND votes > 200
+-- ORDER BY votes DESC, rating ASC;
+
+
